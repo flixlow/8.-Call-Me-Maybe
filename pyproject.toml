@@ -1,0 +1,8 @@
+dependencies = [
+	mypy
+	flake8
+	pydantic
+	json
+	numpy
+	llm_sdk
+]

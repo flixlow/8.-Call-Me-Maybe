@@ -7,6 +7,10 @@
 ## Instructions
 
 ## Resources
+### AI
+uv
+uv sync
+constrained decoding
 
 ## Algorithm explanation
 Describe your constrained decoding approach in detail
