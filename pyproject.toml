@@ -1,8 +1,15 @@
+[project]
+name = "8-call-me-maybe"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
 dependencies = [
-	mypy
-	flake8
-	pydantic
-	json
-	numpy
-	llm_sdk
+    "flake8>=7.3.0",
+    "mypy>=1.19.1",
+    "numpy>=2.2.6",
+    "pydantic>=2.12.5"
 ]
+
+[tool.uv.sources]
+llm-sdk = { path = "llm_sdk/dist/llm_sdk-0.1.0-py3-none-any.whl" }

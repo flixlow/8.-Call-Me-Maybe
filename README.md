@@ -8,9 +8,16 @@
 
 ## Resources
 ### AI
-uv
-uv sync
-constrained decoding
+- uv
+- uv sync
+- constrained decoding
+- https://airbyte.com/data-engineering-resources/tokenization-vs-embeddings
+- llm dimensions and coordonates
+- BPE: découper le texte en morceaux intelligents (subwords)
+- SentencePiece: bibliothèque de tokenization développée par Google.
+- https://www.youtube.com/watch?v=4Bdc55j80l8
+- https://docs.python.org/3/library/argparse.html
+
 
 ## Algorithm explanation
 Describe your constrained decoding approach in detail
