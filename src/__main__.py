@@ -1,5 +1,4 @@
-from parsing import parsing
-from input import open_json_file_to_list
+from .parsing import parser, open_json_file_to_list
 from pydantic import BaseModel, RootModel, Field, field_validator
 
 
@@ -29,14 +28,15 @@ class CheckFunctionFile(RootModel):
 
 
 def main() -> None:
-    parser = parsing()
-    func = open_json_file_to_list(parser.functions_definition)
-    prompt = open_json_file_to_list(parser.input)
+    parsing = parser()
+    func = open_json_file_to_list(parsing.functions_definition)
+    prompt = open_json_file_to_list(parsing.input)
 
     validated_func = CheckFunctionFile.model_validate(func)
     validated_prompt = CheckPromptFile.model_validate(prompt)
     prompt = [p.prompt for p in validated_prompt.root]
     print(prompt)
+    print(validated_func)
 
 
 if __name__ == '__main__':

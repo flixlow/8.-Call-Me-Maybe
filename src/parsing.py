@@ -1,7 +1,14 @@
 from argparse import ArgumentParser, Namespace
+import json
 
 
-def parsing() -> Namespace:
+def open_json_file_to_list(file_name: str) -> list:
+    with open(file_name) as json_file:
+        data = json.load(json_file)
+    return data
+
+
+def parser() -> Namespace:
     parser = ArgumentParser()
 
     flags = ["--functions_definition",
@@ -19,7 +26,9 @@ def parsing() -> Namespace:
 
 
 if __name__ == "__main__":
-    parser = parsing()
-    print(parser.functions_definition)
-    print(parser.input)
-    print(parser.output)
+    parsing = parser()
+    print(parsing.functions_definition)
+    print(parsing.input)
+    print(parsing.output)
+    data = open_json_file_to_list("data/input/functions_definition.json")
+    print(data)
