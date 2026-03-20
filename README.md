@@ -17,6 +17,11 @@
 - SentencePiece: bibliothèque de tokenization développée par Google.
 - https://www.youtube.com/watch?v=4Bdc55j80l8
 - https://docs.python.org/3/library/argparse.html
+- https://docs.pydantic.dev/latest/
+- https://stackoverflow.com/
+- https://www.geeksforgeeks.org
+
+
 
 
 ## Algorithm explanation
