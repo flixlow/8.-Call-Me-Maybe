@@ -1,42 +1,12 @@
-from .parsing import parser, open_json_file_to_list
-from pydantic import BaseModel, RootModel, Field, field_validator
-
-
-class Prompt(BaseModel):
-    prompt: str
-
-    @field_validator('prompt', mode='after')
-    def is_prompt_empty(cls, prompt) -> str:
-        if prompt == "" or prompt.isspace():
-            raise ValueError("Empty prompt")
-        return prompt
-
-
-class CheckPromptFile(RootModel):
-    root: list[Prompt]
-
-
-class Func(BaseModel):
-    name: str = Field(min_length=1)
-    description: str = Field(min_length=1)
-    parameters: dict[str, dict[str, str]]
-    returns: dict[str, str]
-
-
-class CheckFunctionFile(RootModel):
-    root: list[Func]
+from .parsing_validator import parse_and_check_args_and_files
+# from llm_sdk.llm_sdk import Small_LLM_Model
 
 
 def main() -> None:
-    parsing = parser()
-    func = open_json_file_to_list(parsing.functions_definition)
-    prompt = open_json_file_to_list(parsing.input)
-
-    validated_func = CheckFunctionFile.model_validate(func)
-    validated_prompt = CheckPromptFile.model_validate(prompt)
-    prompt = [p.prompt for p in validated_prompt.root]
-    print(prompt)
-    print(validated_func)
+    functions, prompts = parse_and_check_args_and_files()
+    # llm = Small_LLM_Model()
+    # id = llm.encode(prompt[0])
+    # print(llm.get_logic_from_ids(id))
 
 
 if __name__ == '__main__':

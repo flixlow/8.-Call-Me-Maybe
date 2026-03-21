@@ -1,6 +1,5 @@
-from .parsing import parser, open_json_file_to_list
+from .parsing_validator import parse_and_check_args_and_files
 
 __all__ = [
-    "parser",
-    "open_json_file_to_list"
+    "parse_and_check_args_and_files"
 ]

@@ -6,11 +6,12 @@ V_UV = $(VENV)/bin/uv
 LLM = llm_sdk
 
 install: $(VENV)
+	$(V_PYTHON) -m ensurepip --upgrade
 	$(V_PIP) install uv
 	$(V_UV) sync --project $(LLM) --cache-dir /tmp/uv_cache
 	$(V_UV) build --project $(LLM) --cache-dir /tmp/uv_cache
 	$(V_UV) sync
-	@echo "\033[1;32m\n[OK] installation completed ✔\n"
+	@echo "\033[0;32m\n[OK] installation completed ✔\n"
 
 $(VENV):
 	python3 -m venv $(VENV)
@@ -22,9 +23,15 @@ debug: install
 	$(PYTHON) -m pdb $(MAIN_PROGRAM)
 
 clean:
+	rm -rf .venv
+
+fclean:
+	
 
 lint:
 	flake8 . && mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
 lint-strict:
 	flake8 . && mypy . -- strict
+
+.PHONY: install run debug lint lint-strict clean fclean 
