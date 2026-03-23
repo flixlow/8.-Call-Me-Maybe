@@ -1,38 +1,39 @@
 from src.parsing_validator import parse_and_check_args_and_files
 from llm_sdk import Small_LLM_Model  # type: ignore
 import numpy as np
-from parsing_validator import Func
-
-
-def is_function_in_working_prompt(prompt: str, functions: list[Func]) -> bool:
-    for function in functions:
-        if function.name in prompt:
-            return True
-    return False
 
 
 def searching_function(llm: Small_LLM_Model,
-                       functions: list[Func], prompt: str) -> str:
+                       functions: list, prompt: str) -> str:
     """sorted logits to get function_name"""
-    context = "answer a name of function :"
+    functions_list = [str(function.name) for function in functions]
+    functions_name = "list of function name: " + " ".join(functions_list)
 
-    functions_list = [function.name for function in functions]
-    functions_name = str(functions_list.join(" "))
+    context = (f"answer a name of function :\n{functions_name}"
+               f"\n{prompt}\nfunction name: ")
 
-    working_prompt = context + functions_name + prompt
+    written = ""
+    i = 0
 
-    while is_function_in_working_prompt(working_prompt, functions):
-        ids = llm.encode()
+    while i < 50:
+        ids = llm.encode(context)
 
         logits = llm.get_logits_from_input_ids(ids.tolist()[0])
 
         index_of_max_value = np.argmax(logits)
 
-        result = llm.decode(index_of_max_value)
+        written += llm.decode(index_of_max_value)
+        context += llm.decode(index_of_max_value)
+        if any(function.name in written for function in functions):
+            break
+        i += 1
 
-        working_prompt += result
-    ret = working_prompt - prompt
-    return ret
+    for function in functions:
+        if function.name in written:
+            print(i)
+            return function.name
+
+    return "not found"
 
 
 def main() -> None:
