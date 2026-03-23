@@ -8,7 +8,7 @@ LLM = llm_sdk
 install: $(VENV)
 	$(V_PYTHON) -m ensurepip --upgrade
 	$(V_PIP) install uv
-	$(V_UV) sync --project $(LLM) --cache-dir /tmp/uv_cache
+# 	$(V_UV) sync --project $(LLM) --cache-dir /tmp/uv_cache
 	$(V_UV) build --project $(LLM) --cache-dir /tmp/uv_cache
 	$(V_UV) sync
 	@echo "\033[0;32m\n[OK] installation completed ✔\n"
@@ -23,10 +23,11 @@ debug: install
 	$(PYTHON) -m pdb $(MAIN_PROGRAM)
 
 clean:
-	rm -rf .venv
+# 	find . -type d -name "__pycache__" -exec rm -rf {} +
+#     find . -type d -name ".mypy_cache" -exec rm -rf {} +
 
-fclean:
-	
+fclean: clean
+	rm -rf $(VENV)
 
 lint:
 	flake8 . && mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
