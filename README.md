@@ -22,6 +22,7 @@
 - https://www.geeksforgeeks.org
 - numpy.argmax()
 - difference between tensors, ids and tokens
+- https://www.aidancooper.co.uk/constrained-decoding/#what-is-constrained-decoding-and-how-does-it-work
 
 
 
