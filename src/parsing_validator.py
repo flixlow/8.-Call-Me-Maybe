@@ -44,7 +44,7 @@ def parsing() -> Namespace:
     return parser.parse_args()
 
 
-def parse_and_check_args_and_files() -> tuple[list[dict], list[str]]:
+def parse_and_check_args_and_files() -> tuple[list[Func], list[Prompt]]:
     parser = parsing()
 
     functions = open_json_file_to_list(parser.functions_definition)
@@ -56,7 +56,6 @@ def parse_and_check_args_and_files() -> tuple[list[dict], list[str]]:
     validated_functions = func_validator.validate_python(functions)
     validated_prompts = prompt_validator.validate_python(prompts)
 
-    validated_prompts = [p.prompt for p in validated_prompts]
     return (validated_functions, validated_prompts)
 
 

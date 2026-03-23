@@ -7,7 +7,7 @@
 ## Instructions
 
 ## Resources
-### AI
+### AI Claude
 - uv
 - uv sync
 - constrained decoding
@@ -20,6 +20,8 @@
 - https://docs.pydantic.dev/latest/
 - https://stackoverflow.com/
 - https://www.geeksforgeeks.org
+- numpy.argmax()
+- difference between tensors, ids and tokens
 
 
 

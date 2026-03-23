@@ -7,6 +7,12 @@ resolution-markers = [
     "python_full_version < '3.11'",
 ]
 
+[manifest]
+members = [
+    "8-call-me-maybe",
+    "llm-sdk",
+]
+
 [[package]]
 name = "8-call-me-maybe"
 version = "0.1.0"

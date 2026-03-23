@@ -1,33 +1,18 @@
-MAIN_PROGRAM = src
-VENV = .venv
-V_PYTHON = $(VENV)/bin/python3
-V_PIP = $(V_PYTHON) -m pip
-V_UV = $(VENV)/bin/uv
-LLM = llm_sdk
-
-install: $(VENV)
-	$(V_PYTHON) -m ensurepip --upgrade
-	$(V_PIP) install uv
-# 	$(V_UV) sync --project $(LLM) --cache-dir /tmp/uv_cache
-	$(V_UV) build --project $(LLM) --cache-dir /tmp/uv_cache
-	$(V_UV) sync
+install:
+	uv sync
 	@echo "\033[0;32m\n[OK] installation completed ✔\n"
 
-$(VENV):
-	python3 -m venv $(VENV)
-
 run:
-	uv run $(V_PYTHON) -m $(MAIN_PROGRAM) --functions_definition data/input/functions_definition.json --input data/input/function_calling_tests.json --output data/output/function_calls.json
+	uv run python3 -m src --functions_definition data/input/functions_definition.json --input data/input/function_calling_tests.json --output data/output/function_calls.json
 
 debug: install
-	$(PYTHON) -m pdb $(MAIN_PROGRAM)
+	uv run python3 -m pdb src
 
 clean:
-# 	find . -type d -name "__pycache__" -exec rm -rf {} +
-#     find . -type d -name ".mypy_cache" -exec rm -rf {} +
+	find . -type d -name "__pycache__" -exec rm -rf {} +
 
 fclean: clean
-	rm -rf $(VENV)
+	rm -rf .venv
 
 lint:
 	flake8 . && mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
@@ -35,4 +20,4 @@ lint:
 lint-strict:
 	flake8 . && mypy . -- strict
 
-.PHONY: install run debug lint lint-strict clean fclean 
+.PHONY: install run debug clean fclean lint lint-strict
