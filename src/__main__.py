@@ -14,10 +14,10 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    try:
-        main()
-    except Exception as e:
-        print(e)
+    # try:
+    main()
+    # except Exception as e:
+    # print(e)
 
 # print("\033[1;32m[OK]\033[0m")
 # print("\033[1;31m[ERROR]")

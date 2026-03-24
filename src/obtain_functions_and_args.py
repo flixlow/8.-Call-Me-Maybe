@@ -1,5 +1,4 @@
 from llm_sdk import Small_LLM_Model  # type: ignore
-import numpy as np
 
 
 def get_prompt_for_function(functions: list, prompt: str) -> str:
@@ -22,36 +21,38 @@ def get_tab_ids_of_functions_name(llm: Small_LLM_Model,
 
 
 def get_available_tokens(tab: list[list[int]],
-                         written: list[int]) -> list[int]:
-    available_tokens = []
+                         written: list[int]) -> set[int]:
+    available_tokens = set()
     for function in tab:
-        if (function[:len(written)] == written):
-            available_tokens.append(function[len(written)])
+        if function[:len(written)] == written:
+            available_tokens.add(function[len(written)])
     return available_tokens
 
 
 def searching_function(llm: Small_LLM_Model,
                        functions: list, prompt: str) -> str:
-
     context = get_prompt_for_function(functions, prompt)
     tab = get_tab_ids_of_functions_name(llm, functions)
+
     written: list = []
+    ids: list = llm.encode(context).tolist()[0]
 
-    for i in range(30):
-        ids = llm.encode(context)
+    for i in range(10):
+        available_tokens = get_available_tokens(tab, written)
 
-        functions_tokens = get_available_tokens(tab, written)
+        logits = llm.get_logits_from_input_ids(ids)
 
-        logits = llm.get_logits_from_input_ids(ids.tolist()[0])
+        constrained = {}
+        for tokens in available_tokens:
+            constrained.update({tokens: logits[tokens]})
 
-        index_of_max_value = [np.argmax(logits)]
+        highest_probability = max(constrained, key=lambda x: constrained[x])
 
-        written += llm.decode(index_of_max_value)
-        context += llm.decode(index_of_max_value)
+        written.append(highest_probability)
+        ids.append(highest_probability)
 
-        for function in functions:
-            if function.name in written:
-                print(i)
-                return function.name
+        for function_token_tab in tab:
+            if function_token_tab == written:
+                return llm.decode(written)
 
     return "not found"
