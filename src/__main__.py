@@ -8,8 +8,6 @@ def main() -> None:
     functions, prompts = parse_and_check_args_and_files()
     llm = Small_LLM_Model()
 
-    print(functions)
-
     for prompt in prompts:
         current = prompt.prompt
         func = searching_function(llm, functions, current)

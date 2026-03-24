@@ -2,7 +2,7 @@ from llm_sdk import Small_LLM_Model  # type: ignore
 from src.parsing_validator import Func
 
 
-def get_prompt_for_function(functions: list[Func], prompt: str) -> str:
+def get_context(functions: list[Func], prompt: str) -> str:
     functions_list = [str(function.name) for function in functions]
     functions_name = "list of function name: " + "|".join(functions_list)
     return ("Choose the most relevant function for the request.\n"
@@ -30,7 +30,7 @@ def get_available_tokens(tab: list[list[int]],
 
 def searching_function(llm: Small_LLM_Model,
                        functions: list[Func], prompt: str) -> str:
-    context = get_prompt_for_function(functions, prompt)
+    context = get_context(functions, prompt)
     tab = get_tab_ids_of_functions_name(llm, functions)
     written: list = []
     ids: list = llm.encode(context).tolist()[0]
