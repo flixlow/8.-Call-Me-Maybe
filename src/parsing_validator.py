@@ -1,7 +1,27 @@
-from argparse import ArgumentParser, Namespace
-import json
 from pydantic import BaseModel, TypeAdapter  # type: ignore
 from pydantic import Field, field_validator  # type: ignore
+from argparse import ArgumentParser, Namespace
+from enum import Enum
+import json
+
+
+class ArgType(Enum):
+    NUMBER = "number"
+    STRING = "string"
+    FLOAT = "float"
+    INTEGER = "integer"
+    BOOLEAN = "boolean"
+
+
+class Type(BaseModel):
+    type: ArgType
+
+
+class Func(BaseModel):
+    name: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    parameters: dict[str, Type]
+    returns: dict[str, str]
 
 
 class Prompt(BaseModel):
@@ -12,13 +32,6 @@ class Prompt(BaseModel):
         if prompt == "" or prompt.isspace():
             raise ValueError("Empty prompt")
         return prompt
-
-
-class Func(BaseModel):
-    name: str = Field(min_length=1)
-    description: str = Field(min_length=1)
-    parameters: dict[str, dict[str, str]]
-    returns: dict[str, str]
 
 
 def open_json_file_to_list(file_name: str) -> list:
