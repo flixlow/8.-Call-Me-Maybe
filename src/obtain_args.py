@@ -1,50 +1,69 @@
 from llm_sdk import Small_LLM_Model  # type: ignore
 from src.parsing_validator import Func
+from pydantic import BaseModel, ConfigDict
 import numpy as np
 
 
-def get_context(function: str, parameters: dict, prompt: str) -> str:
-    text = ""
+class ArgsFinder(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    for k, v in parameters.items():
-        text += f"argument_name = {k}, type = ({v.type.name})\n"
+    llm: Small_LLM_Model
+    function: Func
+    prompt: str
 
-    return ("Answer only with the appropriate argument of Request:"
-            f"\nFunction name: {function}"
-            f"\nRequest: {prompt}"
-            f"\nArgument(s):\n{text}")
+    def get_context(self) -> list[int]:
+        func = self.function
+        arg_context = ""
 
+        for k, v in func.parameters.items():
+            arg_context += f"\nargument_name = {k}, type = ({v.type.name})"
 
-def searching_args(llm: Small_LLM_Model,
-                   function: Func, prompt: str) -> dict[str, str | dict]:
-    context = get_context(function.name, function.parameters, prompt)
+        context = ("Answer only with the appropriate argument of Request:"
+                   f"\nFunction name: {func.name}"
+                   f"\nRequest: {self.prompt}"
+                   f"\nArgument(s):{arg_context}")
 
-    written = []
-    args_lign = [f"{k}: '" for k in function.parameters.keys()]
-    text = [llm.encode(arg).tolist()[0] for arg in args_lign]
-    ids: list = llm.encode(context).tolist()[0]
-    id_double_quotes = llm.encode("'").tolist()[0]
-    index_of_max_value = id_double_quotes
+        return self.llm.encode(context).tolist()[0]
 
-    for i in range(12):
-        if text == []:
-            break
+    # def prompt_tokens(self) -> list[int]:
+    #     tokens: list = []
+    #     for word in self.prompt.split():
+    #         tokens.append(self.llm.encode(word).tolist()[0])
+    #     return tokens
 
-        if index_of_max_value == id_double_quotes:
-            arg = text.pop(0)
-            ids.extend(arg)
-            written.extend(arg)
+    def encode_args_list(self) -> list[list[int]]:
+        """return a tab[str] on every argument to input in context"""
+        args_lign = [f"{k}: '" for k in self.function.parameters.keys()]
 
-        logits = llm.get_logits_from_input_ids(ids)
-        index_of_max_value = int(np.argmax(logits))
-        written.append(index_of_max_value)
-        ids.append(index_of_max_value)
-        i += 1
+        return [self.llm.encode(arg).tolist()[0] for arg in args_lign]
 
-    print("".join(llm.decode(written)))
+    def searching_args(self) -> str:
+        written = []
+        ids = self.get_context()
+        args_input = self.encode_args_list()
+        id_quotes = self.llm.encode("'").tolist()[0]
+        index_of_max_value = id_quotes
 
-    return {
-        "prompt": prompt,
-        "name": function.name,
-        "parameters": "None"
-    }
+        for i in range(12):
+            if index_of_max_value == id_quotes:
+                if not args_input:
+                    break
+                arg = args_input.pop(0)
+                ids.extend(arg)
+                written.extend(arg)
+
+            logits = self.llm.get_logits_from_input_ids(ids)
+            index_of_max_value = int(np.argmax(logits))
+            written.append(index_of_max_value)
+            ids.append(index_of_max_value)
+            if index_of_max_value == id_quotes and not args_input:
+                break
+
+        return self.llm.decode(written)
+
+# contrained decoding selon type de l'argument gerer les differents
+# NUMBER = "number"
+# STRING = "string"
+# FLOAT = "float"
+# INTEGER = "integer"
+# BOOLEAN = "boolean"
