@@ -33,7 +33,7 @@ class ArgsFinder(BaseModel):
 
     def encode_args_list(self) -> list[list[int]]:
         """return a tab[str] on every argument to input in context"""
-        args_lign = [f"{k}: '" for k in self.function.parameters.keys()]
+        args_lign = [f'{k}: "' for k in self.function.parameters.keys()]
 
         return [self.llm.encode(arg).tolist()[0] for arg in args_lign]
 
@@ -41,8 +41,9 @@ class ArgsFinder(BaseModel):
         written = []
         ids = self.get_context()
         args_input = self.encode_args_list()
-        id_quotes = self.llm.encode("'").tolist()[0]
+        id_quotes = self.llm.encode('"').tolist()[0][0]
         index_of_max_value = id_quotes
+        print(id_quotes)
 
         for i in range(12):
             if index_of_max_value == id_quotes:
@@ -54,10 +55,10 @@ class ArgsFinder(BaseModel):
 
             logits = self.llm.get_logits_from_input_ids(ids)
             index_of_max_value = int(np.argmax(logits))
-            written.append(index_of_max_value)
-            ids.append(index_of_max_value)
             if index_of_max_value == id_quotes and not args_input:
                 break
+            written.append(index_of_max_value)
+            ids.append(index_of_max_value)
 
         return self.llm.decode(written)
 
