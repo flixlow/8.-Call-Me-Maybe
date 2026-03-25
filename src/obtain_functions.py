@@ -46,7 +46,7 @@ def searching_function(llm: Small_LLM_Model,
         ids.append(highest_probability)
         for function_token_tab in tab:
             if function_token_tab == written:
-                print(i)
+                # print(i)
                 return llm.decode(written)
 
     return "not found"
