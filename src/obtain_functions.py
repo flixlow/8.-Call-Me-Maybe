@@ -35,7 +35,7 @@ def searching_function(llm: Small_LLM_Model,
     written: list = []
     ids: list = llm.encode(context).tolist()[0]
 
-    for i in range(10):
+    for i in range(12):
         available_tokens = get_available_tokens(tab, written)
         logits = llm.get_logits_from_input_ids(ids)
         constrained = {}
@@ -46,7 +46,6 @@ def searching_function(llm: Small_LLM_Model,
         ids.append(highest_probability)
         for function_token_tab in tab:
             if function_token_tab == written:
-                # print(i)
                 return llm.decode(written)
 
     return "not found"

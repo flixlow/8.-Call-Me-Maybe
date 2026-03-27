@@ -40,31 +40,42 @@ class ArgsFinder(BaseModel):
     def searching_args(self) -> str:
         written = []
         ids = self.get_context()
-        args_input = self.encode_args_list()
-        id_quotes = self.llm.encode('"').tolist()[0][0]
-        index_of_max_value = id_quotes
-        print(id_quotes)
+        llm = self.llm
 
-        for i in range(12):
-            if index_of_max_value == id_quotes:
+        args_input = self.encode_args_list()
+        quotes_id = llm.encode('"').tolist()[0][0]
+        index_of_max_value = quotes_id
+        comma_id = llm.encode(', ').tolist()[0][0]
+
+        for i in range(30):
+            if index_of_max_value == quotes_id:
                 if not args_input:
                     break
                 arg = args_input.pop(0)
                 ids.extend(arg)
                 written.extend(arg)
 
-            logits = self.llm.get_logits_from_input_ids(ids)
-            index_of_max_value = int(np.argmax(logits))
-            if index_of_max_value == id_quotes and not args_input:
-                break
+            logits = llm.get_logits_from_input_ids(ids)
+            index_of_max_value = int(np.argmax(logits))  # we must implement a constrained decoding here with only given set of char
+
+            if '"' in llm.decode(index_of_max_value):
+                index_of_max_value = quotes_id
+                if not args_input:
+                    written.append(index_of_max_value)
+                    return llm.decode(written)
+                else:
+                    written.append(index_of_max_value)
+                    written.append(comma_id)
+                    ids.append(index_of_max_value)
+                    ids.append(comma_id)
+                    continue
             written.append(index_of_max_value)
             ids.append(index_of_max_value)
 
         return self.llm.decode(written)
 
-# contrained decoding selon type de l'argument gerer les differents
-# NUMBER = "number"
-# STRING = "string"
-# FLOAT = "float"
-# INTEGER = "integer"
-# BOOLEAN = "boolean"
+# NUMBER = "number" + '"'
+# STRING = "string" + '"'
+# FLOAT = "float" + '"'
+# INTEGER = "integer" + '"'
+# BOOLEAN = "boolean" + '"'
