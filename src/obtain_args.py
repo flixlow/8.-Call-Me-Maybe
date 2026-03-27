@@ -1,5 +1,5 @@
 from llm_sdk import Small_LLM_Model  # type: ignore
-from src.parsing_validator import Func
+from src.parsing_validator import Func, ArgType
 from pydantic import BaseModel, ConfigDict
 import numpy as np
 
@@ -16,7 +16,7 @@ class ArgsFinder(BaseModel):
         arg_context = ""
 
         for k, v in func.parameters.items():
-            arg_context += f"\nargument_name = {k}, type = ({v.type.name})"
+            arg_context += f"\nargument_name: {k}, type: {v.type.value}"
 
         context = ("Answer only with the appropriate argument of Request:"
                    f"\nFunction name: {func.name}"
@@ -25,17 +25,16 @@ class ArgsFinder(BaseModel):
 
         return self.llm.encode(context).tolist()[0]
 
-    # def prompt_tokens(self) -> list[int]:
-    #     tokens: list = []
-    #     for word in self.prompt.split():
-    #         tokens.append(self.llm.encode(word).tolist()[0])
-    #     return tokens
-
     def encode_args_list(self) -> list[list[int]]:
         """return a tab[str] on every argument to input in context"""
         args_lign = [f'{k}: "' for k in self.function.parameters.keys()]
 
         return [self.llm.encode(arg).tolist()[0] for arg in args_lign]
+
+    def get_id_set(self) -> list[int]:
+        for parameter in self.function.parameters.values():
+            print(parameter.type.name)
+        return []
 
     def searching_args(self) -> str:
         written = []

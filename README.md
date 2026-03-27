@@ -23,6 +23,7 @@
 - numpy.argmax()
 - difference between tensors, ids and tokens
 - https://www.aidancooper.co.uk/constrained-decoding/#what-is-constrained-decoding-and-how-does-it-work
+- https://medium.com/@rosgluk/constraining-llms-with-structured-output-ollama-qwen3-python-or-go-2f56ff41d720
 
 
 
@@ -38,6 +39,11 @@ Discuss accuracy, speed, and reliability of your solution
 
 ## Challenges faced
 Document difficulties encountered and how you solved them
+how to stop the prompt and implement the constrained decoding method ?
+try:
+- prompt argument only ?
+- restraining with arg type set
+- decoding to read if ther is a final double quotes
 
 ## Testing strategy
 Describe how you validated your implementation
