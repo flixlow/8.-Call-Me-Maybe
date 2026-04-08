@@ -11,9 +11,11 @@ debug: install
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
+	rm -rf data/output
 
 fclean: clean
 	rm -rf .venv
+	rm -rf moulinette
 
 lint:
 	flake8 . && mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs

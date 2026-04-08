@@ -1,5 +1,5 @@
-from llm_sdk import Small_LLM_Model  # type: ignore
-from src.parsing_validator import Func, ArgType
+from llm_sdk import Small_LLM_Model
+from src.parsing_validator import Func
 from pydantic import BaseModel, ConfigDict
 import numpy as np
 
@@ -36,45 +36,63 @@ class ArgsFinder(BaseModel):
             print(parameter.type.name)
         return []
 
-    def searching_args(self) -> str:
+    def parse_args(self, arg: str) -> dict:
+        key_value = arg.split(':')
+        arg_type = ""
+        key = key_value[0].strip().strip('"')
+
+        for k, v in self.function.parameters.items():
+            if k == key:
+                arg_type = v.type.value
+
+        value = key_value[1].strip().strip('"')
+        if arg_type == "number" or arg_type == "float":
+            try:
+                return {key: float(value)}
+            except Exception:
+                pass
+        if arg_type == "integer":
+            try:
+                return {key: int(value)}
+            except Exception:
+                pass
+        return {key: str(value)}
+
+    def searching_args(self) -> dict:
         written = []
-        ids = self.get_context()
+        context_ids = self.get_context()
         llm = self.llm
 
         args_input = self.encode_args_list()
         quotes_id = llm.encode('"').tolist()[0][0]
         index_of_max_value = quotes_id
         comma_id = llm.encode(', ').tolist()[0][0]
+        ret: dict = {}
 
         for i in range(30):
             if index_of_max_value == quotes_id:
                 if not args_input:
                     break
                 arg = args_input.pop(0)
-                ids.extend(arg)
+                context_ids.extend(arg)
                 written.extend(arg)
 
-            logits = llm.get_logits_from_input_ids(ids)
-            index_of_max_value = int(np.argmax(logits))  # we must implement a constrained decoding here with only given set of char
+            logits = llm.get_logits_from_input_ids(context_ids)
+            index_of_max_value = int(np.argmax(logits))
 
             if '"' in llm.decode(index_of_max_value):
                 index_of_max_value = quotes_id
+                written.append(index_of_max_value)
+                ret.update(self.parse_args(llm.decode(written)))
                 if not args_input:
-                    written.append(index_of_max_value)
-                    return llm.decode(written)
+                    return ret
                 else:
-                    written.append(index_of_max_value)
-                    written.append(comma_id)
-                    ids.append(index_of_max_value)
-                    ids.append(comma_id)
+                    context_ids.append(index_of_max_value)
+                    context_ids.append(comma_id)
+                    written = []
                     continue
+
             written.append(index_of_max_value)
-            ids.append(index_of_max_value)
-
+            context_ids.append(index_of_max_value)
+        print("ERROR")
         return self.llm.decode(written)
-
-# NUMBER = "number" + '"'
-# STRING = "string" + '"'
-# FLOAT = "float" + '"'
-# INTEGER = "integer" + '"'
-# BOOLEAN = "boolean" + '"'

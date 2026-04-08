@@ -1,4 +1,4 @@
-from llm_sdk import Small_LLM_Model  # type: ignore
+from llm_sdk import Small_LLM_Model
 from src.parsing_validator import Func
 from pydantic import BaseModel, ConfigDict
 
@@ -36,13 +36,13 @@ class FunctionFinder(BaseModel):
         llm = self.llm
         generated: list = []
         ids = self.get_context(prompt)
-        token_functions = self.get_tab_ids_of_functions_name()
+        tok_functions = self.get_tab_ids_of_functions_name()
 
         for i in range(12):
             constrained = {}
             logits = llm.get_logits_from_input_ids(ids)
 
-            for tokens in self.get_available_tokens(token_functions, generated):
+            for tokens in self.get_available_tokens(tok_functions, generated):
                 constrained.update({tokens: logits[tokens]})
 
             highest_probability_token = max(
@@ -51,7 +51,7 @@ class FunctionFinder(BaseModel):
             generated.append(highest_probability_token)
             ids.append(highest_probability_token)
 
-            for function in token_functions:
+            for function in tok_functions:
                 if function == generated:
                     return llm.decode(generated)
 

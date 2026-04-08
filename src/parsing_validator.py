@@ -1,5 +1,5 @@
-from pydantic import BaseModel, TypeAdapter  # type: ignore
-from pydantic import Field, field_validator  # type: ignore
+from pydantic import BaseModel, TypeAdapter
+from pydantic import Field, field_validator
 from argparse import ArgumentParser, Namespace
 from enum import Enum
 import json
@@ -57,7 +57,8 @@ def parsing() -> Namespace:
     return parser.parse_args()
 
 
-def parse_and_check_args_and_files() -> tuple[list[Func], list[Prompt]]:
+def parse_and_check_args_and_files() -> tuple[
+        Namespace, list[Func], list[Prompt]]:
     parser = parsing()
 
     functions = open_json_file_to_list(parser.functions_definition)
@@ -69,10 +70,11 @@ def parse_and_check_args_and_files() -> tuple[list[Func], list[Prompt]]:
     validated_functions = func_validator.validate_python(functions)
     validated_prompts = prompt_validator.validate_python(prompts)
 
-    return (validated_functions, validated_prompts)
+    return (parser, validated_functions, validated_prompts)
 
 
 if __name__ == "__main__":
-    functions, prompts = parse_and_check_args_and_files()
+    parser, functions, prompts = parse_and_check_args_and_files()
+    print(parser)
     print(functions)
     print(prompts)
