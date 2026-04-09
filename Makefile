@@ -6,7 +6,7 @@ run:
 	uv run python3 -m src --functions_definition data/input/functions_definition.json --input data/input/function_calling_tests.json --output data/output/function_calls.json
 
 debug: install
-	uv run python3 -m pdb src
+	uv run python3 -m pdb -m src --functions_definition data/input/functions_definition.json --input data/input/function_calling_tests.json --output data/output/function_calls.json
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
@@ -15,10 +15,9 @@ clean:
 
 fclean: clean
 	rm -rf .venv
-	rm -rf moulinette
 
 lint:
-	flake8 . && mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+	flake8 --exclude=llm_sdk . && mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
 lint-strict:
 	flake8 . && mypy . -- strict

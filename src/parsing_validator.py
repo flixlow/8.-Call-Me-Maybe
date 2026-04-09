@@ -28,7 +28,7 @@ class Prompt(BaseModel):
     prompt: str
 
     @field_validator('prompt', mode='after')
-    def is_prompt_empty(cls, prompt) -> str:
+    def is_prompt_empty(cls, prompt: str) -> str:
         if prompt == "" or prompt.isspace():
             raise ValueError("Empty prompt")
         return prompt

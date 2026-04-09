@@ -1,5 +1,5 @@
 from llm_sdk import Small_LLM_Model
-from src.parsing_validator import Func
+from parsing_validator import Func
 from pydantic import BaseModel, ConfigDict
 import numpy as np
 
@@ -95,4 +95,4 @@ class ArgsFinder(BaseModel):
             written.append(index_of_max_value)
             context_ids.append(index_of_max_value)
         print("ERROR")
-        return self.llm.decode(written)
+        return ret

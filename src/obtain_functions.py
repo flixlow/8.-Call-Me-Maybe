@@ -1,5 +1,5 @@
 from llm_sdk import Small_LLM_Model
-from src.parsing_validator import Func
+from parsing_validator import Func
 from pydantic import BaseModel, ConfigDict
 
 

@@ -1,7 +1,7 @@
-from src.parsing_validator import parse_and_check_args_and_files
+from parsing_validator import parse_and_check_args_and_files
 from llm_sdk import Small_LLM_Model
-from src.obtain_functions import FunctionFinder
-from src.obtain_args import ArgsFinder
+from obtain_functions import FunctionFinder
+from obtain_args import ArgsFinder
 import json
 import os
 from pathlib import Path
@@ -18,6 +18,7 @@ def main() -> None:
         func = function_finder.searching_function(prompt.prompt)
         if not func:
             print(f"prompt: {prompt.prompt} (function not found)")
+
         for function in functions:
             if function.name == func:
                 arguments_finder = ArgsFinder(
@@ -35,7 +36,6 @@ def main() -> None:
         pass
     with open(str(output), 'w') as f:
         json.dump(results, f, indent=4)
-    print("\033[1;32m[OK]\033[0m")
 
 
 if __name__ == '__main__':
@@ -43,3 +43,5 @@ if __name__ == '__main__':
         main()
     except Exception as e:
         print(f"\033[1;31m[ERROR]{e}")
+    else:
+        print("\033[1;32m[OK]\033[0m")
