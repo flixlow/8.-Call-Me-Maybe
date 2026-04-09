@@ -1,5 +1,5 @@
 from llm_sdk import Small_LLM_Model
-from parsing_validator import Func
+from src.parsing_validator import Func
 from pydantic import BaseModel, ConfigDict
 import numpy as np
 
@@ -69,7 +69,7 @@ class ArgsFinder(BaseModel):
         comma_id = llm.encode(', ').tolist()[0][0]
         ret: dict = {}
 
-        for i in range(30):
+        for _ in range(30):
             if index_of_max_value == quotes_id:
                 if not args_input:
                     break

@@ -49,7 +49,7 @@ def parsing() -> Namespace:
 
     default_files = ["data/input/functions_definition.json",
                      "data/input/function_calling_tests.json",
-                     "data/output/function_calls.json"]
+                     "data/output/function_calling_results.json"]
 
     for flag, default_file in zip(flags, default_files):
         parser.add_argument(flag, default=default_file)

@@ -1,5 +1,5 @@
 from llm_sdk import Small_LLM_Model
-from parsing_validator import Func
+from src.parsing_validator import Func
 from pydantic import BaseModel, ConfigDict
 
 
@@ -38,7 +38,7 @@ class FunctionFinder(BaseModel):
         ids = self.get_context(prompt)
         tok_functions = self.get_tab_ids_of_functions_name()
 
-        for i in range(12):
+        for _ in range(12):
             constrained = {}
             logits = llm.get_logits_from_input_ids(ids)
 

@@ -1,7 +1,7 @@
-from parsing_validator import parse_and_check_args_and_files
+from src.parsing_validator import parse_and_check_args_and_files
 from llm_sdk import Small_LLM_Model
-from obtain_functions import FunctionFinder
-from obtain_args import ArgsFinder
+from src.obtain_functions import FunctionFinder
+from src.obtain_args import ArgsFinder
 import json
 import os
 from pathlib import Path
@@ -10,7 +10,7 @@ from pathlib import Path
 def main() -> None:
     parser, functions, prompts = parse_and_check_args_and_files()
 
-    llm = Small_LLM_Model()
+    llm = Small_LLM_Model(model_name="Qwen/Qwen3-0.6B")
     results: list[dict] = []
 
     function_finder = FunctionFinder(llm=llm, functions=functions)
