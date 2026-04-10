@@ -2,6 +2,7 @@ from llm_sdk import Small_LLM_Model  # type: ignore
 from src.utils_class import Func
 from pydantic import BaseModel, ConfigDict
 import numpy as np
+from typing import Any
 
 
 class ArgsFinder(BaseModel):
@@ -34,7 +35,9 @@ class ArgsFinder(BaseModel):
                    f"\nFunction name={func.name}"
                    f"\nRequest={self.prompt}"
                    f"\nArgument={arg_context}")
-        return self.llm.encode(context).tolist()[0]
+
+        context_ids: list[int] = self.llm.encode(context).tolist()[0]
+        return context_ids
 
     def encode_args_list(self) -> list[list[int]]:
         """
@@ -46,7 +49,7 @@ class ArgsFinder(BaseModel):
         args_lign = [f'{k}= "' for k in self.function.parameters.keys()]
         return [self.llm.encode(arg).tolist()[0] for arg in args_lign]
 
-    def parse_args(self, arg: str) -> dict:
+    def parse_args(self, arg: str) -> dict[str, Any]:
         """
         Parse an encoded argument string and convert it to the correct type.
 
@@ -75,7 +78,7 @@ class ArgsFinder(BaseModel):
                 pass
         return {key: str(value)}
 
-    def searching_args(self) -> dict:
+    def searching_args(self) -> dict[str, Any]:
         """
         Search and extract arguments from the user request using the LLM.
 
@@ -89,7 +92,7 @@ class ArgsFinder(BaseModel):
         quotes_id = llm.encode('"').tolist()[0][0]
         index_of_max_value = quotes_id
         comma_id = llm.encode(', ').tolist()[0][0]
-        ret: dict = {}
+        ret: dict[str, Any] = {}
         for _ in range(35):
             if index_of_max_value == quotes_id:
                 if not args_input:

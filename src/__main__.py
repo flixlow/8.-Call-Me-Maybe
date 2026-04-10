@@ -3,6 +3,7 @@ from src.parsing_validator import parse_and_check_args_and_files
 from src.obtain_functions import FunctionFinder
 from src.obtain_args import ArgsFinder
 from pathlib import Path
+from typing import Any
 import json
 import os
 
@@ -19,7 +20,7 @@ def main() -> None:
     parser, functions, prompts = parse_and_check_args_and_files()
 
     llm = Small_LLM_Model(model_name="Qwen/Qwen3-0.6B")
-    results: list[dict] = []
+    results: list[dict[str, Any]] = []
 
     function_finder = FunctionFinder(llm=llm, functions=functions)
     for prompt in prompts:

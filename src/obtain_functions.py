@@ -32,7 +32,9 @@ class FunctionFinder(BaseModel):
                    f"{functions_name}\n"
                    f"Request: {prompt}\n"
                    "Answer a function name: ")
-        return self.llm.encode(context).tolist()[0]
+
+        context_ids: list[int] = self.llm.encode(context).tolist()[0]
+        return context_ids
 
     def get_tab_ids_of_functions_name(self) -> list[list[int]]:
         """
@@ -75,7 +77,7 @@ class FunctionFinder(BaseModel):
             str | None: The found function name, or None if not found.
         """
         llm = self.llm
-        generated: list = []
+        generated: list[int] = []
         ids = self.get_context(prompt)
         tok_functions = self.get_tab_ids_of_functions_name()
 
@@ -94,6 +96,7 @@ class FunctionFinder(BaseModel):
 
             for function in tok_functions:
                 if function == generated:
-                    return llm.decode(generated)
+                    result: str = llm.decode(generated)
+                    return result
 
         return None

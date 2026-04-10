@@ -1,10 +1,11 @@
 from pydantic import TypeAdapter
 from argparse import ArgumentParser, Namespace
-from src.utils_class import Prompt, Func
 import json
+from src.utils_class import Prompt, Func
+from typing import Any
 
 
-def open_json_file_to_list(file_name: str) -> list:
+def open_json_file_to_list(file_name: str) -> list[dict[str, Any]]:
     """
     Open a JSON file and return its content as a list.
 
@@ -15,7 +16,7 @@ def open_json_file_to_list(file_name: str) -> list:
         list: Content of the JSON file.
     """
     with open(file_name) as json_file:
-        data = json.load(json_file)
+        data: list[dict[str, Any]] = json.load(json_file)
     return data
 
 
