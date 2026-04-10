@@ -1,22 +1,10 @@
 import json
 from typing import Any
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, ValidationError
 from argparse import ArgumentParser, Namespace
 from src.utils_class import Prompt, Func
-
-
-class FilesOpeningError(Exception):
-    pass
-
-
-class ArgumentsError(Exception):
-    def __init__(self, message: str = (
-            "\nInvalid command-line arguments."
-            "\nPlease ensure all required arguments are provided:"
-            "\n[--functions_definition FUNCTIONS_DEFINITION]"
-            "\n[--input INPUT]"
-            "\n[--output OUTPUT]")) -> None:
-        super().__init__(message)
+from src.errors import FileOpeningError, ArgumentError
+from src.errors import FunctionError, PromptError
 
 
 def open_json_file_to_list(file_name: str) -> list[dict[str, Any]]:
@@ -34,17 +22,17 @@ def open_json_file_to_list(file_name: str) -> list[dict[str, Any]]:
             data: list[dict[str, Any]] = json.load(json_file)
         return data
     except FileNotFoundError:
-        raise FilesOpeningError(
+        raise FileOpeningError(
             f"\nInput file not found: '{file_name}'"
             f"\nPlease check the path and ensure the file exists.")
     except json.JSONDecodeError as e:
-        raise FilesOpeningError(f"\nInvalid JSON in '{file_name}'."
-                                f"\nError at line {e.lineno}")
+        raise FileOpeningError(f"\nInvalid JSON in '{file_name}'."
+                               f"\nError at line {e.lineno}")
     except PermissionError:
-        raise FilesOpeningError(
+        raise FileOpeningError(
             f"Permission denied when reading '{file_name}'.\n")
     except Exception as e:
-        raise FilesOpeningError(f"Error reading '{file_name}': {e}")
+        raise FileOpeningError(f"Error reading '{file_name}': {e}")
 
 
 def parsing() -> Namespace:
@@ -81,7 +69,7 @@ def parse_and_check_args_and_files() -> tuple[
     try:
         parser = parsing()
     except SystemExit:
-        raise ArgumentsError() from None
+        raise ArgumentError() from None
 
     functions = open_json_file_to_list(parser.functions_definition)
     prompts = open_json_file_to_list(parser.input)
@@ -89,8 +77,23 @@ def parse_and_check_args_and_files() -> tuple[
     func_validator = TypeAdapter(list[Func])
     prompt_validator = TypeAdapter(list[Prompt])
 
-    validated_functions = func_validator.validate_python(functions)
-    validated_prompts = prompt_validator.validate_python(prompts)
+    try:
+        validated_functions = func_validator.validate_python(functions)
+    except ValidationError as e:
+        err = e.errors()[0]
+        message = (f"\nLOCALISATION: {err['loc']}"
+                   "\nUNVALID FUNCTION: "
+                   f"{json.dumps(err['input'], indent=4)}")
+        raise FunctionError(message) from e
+
+    try:
+        validated_prompts = prompt_validator.validate_python(prompts)
+    except ValidationError as e:
+        err = e.errors()[0]
+        if err['type'] == "value_error":
+            raise PromptError(f"\n{err['msg'].split(", ")[1]}:"
+                              " Please check Prompts file")
+        raise PromptError(f"\nUNVALID PROMPT: {err['input']}")
 
     return (parser, validated_functions, validated_prompts)
 
