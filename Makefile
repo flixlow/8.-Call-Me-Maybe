@@ -3,7 +3,7 @@ install:
 	@echo "\033[0;32m\n[OK] installation completed ✔\n"
 
 run:
-	uv run python3 -m src --functions_definition data/input/functions_definition.json --input data/input/test.json --output data/output/function_calling_results.json
+	uv run python3 -m src --functions_definition data/input/functions_definition.json --input data/input/function_calling_tests.json --output data/output/function_calling_results.json
 
 debug: install
 	uv run python3 -m pdb -m src --functions_definition data/input/functions_definition.json --input data/input/function_calling_tests.json --output data/output/function_calling_results.json
