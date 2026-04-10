@@ -74,6 +74,14 @@ def parse_and_check_args_and_files() -> tuple[
     functions = open_json_file_to_list(parser.functions_definition)
     prompts = open_json_file_to_list(parser.input)
 
+    if functions == []:
+        raise FunctionError("\nThe list of functions in "
+                            f"{parser.functions_definition} is empty.")
+
+    if prompts == []:
+        raise PromptError(
+            f"\nThe list of prompts in {parser.input} is empty.")
+
     func_validator = TypeAdapter(list[Func])
     prompt_validator = TypeAdapter(list[Prompt])
 
@@ -91,8 +99,8 @@ def parse_and_check_args_and_files() -> tuple[
     except ValidationError as e:
         err = e.errors()[0]
         if err['type'] == "value_error":
-            raise PromptError(f"\n{err['msg'].split(", ")[1]}:"
-                              " Please check Prompts file")
+            raise PromptError(f"\n{err['msg'].split(", ")[1]}: "
+                              "Please check Prompts file")
         raise PromptError(f"\nUNVALID PROMPT: {err['input']}")
 
     return (parser, validated_functions, validated_prompts)

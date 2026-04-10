@@ -91,7 +91,6 @@ class ArgsFinder(BaseModel):
         args_input = self.encode_args_list()
         quotes_id = llm.encode('"').tolist()[0][0]
         index_of_max_value = quotes_id
-        comma_id = llm.encode(', ').tolist()[0][0]
         ret: dict[str, Any] = {}
 
         for _ in range(35):
@@ -113,7 +112,6 @@ class ArgsFinder(BaseModel):
                     return ret
                 else:
                     context_ids.append(index_of_max_value)
-                    context_ids.append(comma_id)
                     written = []
                     continue
             written.append(index_of_max_value)
