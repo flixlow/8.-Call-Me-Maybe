@@ -1,46 +1,31 @@
-from pydantic import BaseModel, TypeAdapter
-from pydantic import Field, field_validator
+from pydantic import TypeAdapter
 from argparse import ArgumentParser, Namespace
-from enum import Enum
+from src.utils_class import Prompt, Func
 import json
 
 
-class ArgType(Enum):
-    NUMBER = "number"
-    STRING = "string"
-    FLOAT = "float"
-    INTEGER = "integer"
-    BOOLEAN = "boolean"
-
-
-class Type(BaseModel):
-    type: ArgType
-
-
-class Func(BaseModel):
-    name: str = Field(min_length=1)
-    description: str = Field(min_length=1)
-    parameters: dict[str, Type]
-    returns: dict[str, str]
-
-
-class Prompt(BaseModel):
-    prompt: str
-
-    @field_validator('prompt', mode='after')
-    def is_prompt_empty(cls, prompt: str) -> str:
-        if prompt == "" or prompt.isspace():
-            raise ValueError("Empty prompt")
-        return prompt
-
-
 def open_json_file_to_list(file_name: str) -> list:
+    """
+    Open a JSON file and return its content as a list.
+
+    Args:
+        file_name (str): Path to the JSON file.
+
+    Returns:
+        list: Content of the JSON file.
+    """
     with open(file_name) as json_file:
         data = json.load(json_file)
     return data
 
 
 def parsing() -> Namespace:
+    """
+    Parse command-line arguments for input/output files.
+
+    Returns:
+        Namespace: Parsed arguments.
+    """
     parser = ArgumentParser()
 
     flags = ["--functions_definition",
@@ -59,6 +44,12 @@ def parsing() -> Namespace:
 
 def parse_and_check_args_and_files() -> tuple[
         Namespace, list[Func], list[Prompt]]:
+    """
+    Parse arguments and validate input files to get functions and prompts.
+
+    Returns:
+        tuple: (parser, validated functions, validated prompts)
+    """
     parser = parsing()
 
     functions = open_json_file_to_list(parser.functions_definition)

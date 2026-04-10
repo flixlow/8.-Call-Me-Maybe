@@ -1,13 +1,21 @@
+from llm_sdk import Small_LLM_Model  # type: ignore
 from src.parsing_validator import parse_and_check_args_and_files
-from llm_sdk import Small_LLM_Model
 from src.obtain_functions import FunctionFinder
 from src.obtain_args import ArgsFinder
+from pathlib import Path
 import json
 import os
-from pathlib import Path
 
 
 def main() -> None:
+    """
+    Main entry point for the script. Loads prompts and functions,
+    finds the best function for each prompt,
+    extracts arguments, and writes results to a file.
+
+    Returns:
+        None
+    """
     parser, functions, prompts = parse_and_check_args_and_files()
 
     llm = Small_LLM_Model(model_name="Qwen/Qwen3-0.6B")
