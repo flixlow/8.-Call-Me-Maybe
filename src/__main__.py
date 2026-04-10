@@ -1,6 +1,6 @@
 from llm_sdk import Small_LLM_Model  # type: ignore
-from src.parsing_validator import parse_and_check_args_and_files
-from src.obtain_functions import FunctionFinder
+from src.parse_and_validate import parse_and_check_args_and_files
+from src.obtain_function_name import FunctionFinder
 from src.obtain_args import ArgsFinder
 from pathlib import Path
 from typing import Any
@@ -11,8 +11,8 @@ import os
 def main() -> None:
     """
     Main entry point for the script. Loads prompts and functions,
-    finds the best function for each prompt,
-    extracts arguments, and writes results to a file.
+    finds the best function for each prompt, extracts arguments,
+    and writes results to a file.
 
     Returns:
         None
@@ -51,6 +51,6 @@ if __name__ == '__main__':
     try:
         main()
     except Exception as e:
-        print(f"\033[1;31m[ERROR]{e}")
+        print(f"\033[1;31m[ERROR]: {type(e).__name__}\033[0m {e}")
     else:
         print("\033[1;32m[OK]\033[0m")

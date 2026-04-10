@@ -1,8 +1,22 @@
+import json
+from typing import Any
 from pydantic import TypeAdapter
 from argparse import ArgumentParser, Namespace
-import json
 from src.utils_class import Prompt, Func
-from typing import Any
+
+
+class FilesOpeningError(Exception):
+    pass
+
+
+class ArgumentsError(Exception):
+    def __init__(self, message: str = (
+            "\nInvalid command-line arguments."
+            "\nPlease ensure all required arguments are provided:"
+            "\n[--functions_definition FUNCTIONS_DEFINITION]"
+            "\n[--input INPUT]"
+            "\n[--output OUTPUT]")) -> None:
+        super().__init__(message)
 
 
 def open_json_file_to_list(file_name: str) -> list[dict[str, Any]]:
@@ -15,9 +29,22 @@ def open_json_file_to_list(file_name: str) -> list[dict[str, Any]]:
     Returns:
         list: Content of the JSON file.
     """
-    with open(file_name) as json_file:
-        data: list[dict[str, Any]] = json.load(json_file)
-    return data
+    try:
+        with open(file_name) as json_file:
+            data: list[dict[str, Any]] = json.load(json_file)
+        return data
+    except FileNotFoundError:
+        raise FilesOpeningError(
+            f"\nInput file not found: '{file_name}'"
+            f"\nPlease check the path and ensure the file exists.")
+    except json.JSONDecodeError as e:
+        raise FilesOpeningError(f"\nInvalid JSON in '{file_name}'."
+                                f"\nError at line {e.lineno}")
+    except PermissionError:
+        raise FilesOpeningError(
+            f"Permission denied when reading '{file_name}'.\n")
+    except Exception as e:
+        raise FilesOpeningError(f"Error reading '{file_name}': {e}")
 
 
 def parsing() -> Namespace:
@@ -51,7 +78,10 @@ def parse_and_check_args_and_files() -> tuple[
     Returns:
         tuple: (parser, validated functions, validated prompts)
     """
-    parser = parsing()
+    try:
+        parser = parsing()
+    except SystemExit:
+        raise ArgumentsError() from None
 
     functions = open_json_file_to_list(parser.functions_definition)
     prompts = open_json_file_to_list(parser.input)
