@@ -4,12 +4,14 @@
 
 ## Description
 
+Ce projet permet de comprendre le fonctionnement des llms, depuis le prompt en text, en passant par les tokens, ids
+le but est d'integrer le constrained decoding sur un petit modeles avec 500m de parametres Qwen3 developpe par alibaba.
+
 ## Instructions
 
 ## Resources
 ### AI Claude
-- uv
-- uv sync
+- uv details
 - constrained decoding
 - https://airbyte.com/data-engineering-resources/tokenization-vs-embeddings
 - llm dimensions and coordonates
@@ -24,15 +26,24 @@
 - difference between tensors, ids and tokens
 - https://www.aidancooper.co.uk/constrained-decoding/#what-is-constrained-decoding-and-how-does-it-work
 - https://medium.com/@rosgluk/constraining-llms-with-structured-output-ollama-qwen3-python-or-go-2f56ff41d720
-
-
+- https://www.youtube.com/watch?v=oJLaA7-i3nI Progress bar
 
 
 ## Algorithm explanation
-Describe your constrained decoding approach in detail
+tout d'abord, j'ai mis en place le constrained decoding sur les noms de fonctions dans functionfinders.
+je tokenise tous les noms de fonctions et j'en fait un tableau de tableau d'id de tokens
+apres avec tokenise et mis sous forme de tableau d'ids le context, j'utilse la fonction get_logits_from_next_ids()
+cela me donne un tableau de probalite dont les id des tokens sont representes au travers des index de ce tableau 
+je vais ensuite recupere les tokens suivant qui peuvent etre coherent avec ce que j ai deja commencé a écrire puis je renvoie les id possibles
+et je compare les probabilites de ces ids et je note celle qui a la plus grande probabilité dans written.
+lorsque je trouve un nom de fonction complet dans written, je retourne ce nom de fonction
+pour ce qui est des arguments je fais selon le type de l'argument, si celui ci est un nombre, inter ou float, j'utilise
+seulement les tokens de cette liste '0123456789".'.
+pour les arguments d'autres types, je prends le token dont le logit est la plus elevée
 
 ## Design decisions
-Explain key choices in your implementation
+j'ai décidé de faire classe basemodel distinct pour la recherche des functions et des arguments.
+
 
 ## Performance analysis
 Discuss accuracy, speed, and reliability of your solution
