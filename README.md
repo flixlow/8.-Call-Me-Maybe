@@ -69,4 +69,4 @@ uv run python -m moulinette grade_student_answers --set private --student_answer
 - Advanced error recovery mechanisms
 - Demonstration of how encoding and decoding integrate with constrained decoding
 - Vizualisation of the generation process
-- 
+- interactive prompt processing
