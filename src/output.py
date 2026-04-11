@@ -13,3 +13,4 @@ def outputfile(parser: Namespace, results: list[dict[str, Any]]) -> None:
         pass
     with open(str(output), 'w') as f:
         json.dump(results, f, indent=4)
+    print(f"\n\033[1;32m[OK] Output file done: {str(output)}\033[0m")

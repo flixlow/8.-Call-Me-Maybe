@@ -103,6 +103,7 @@ def parse_and_check_args_and_files() -> tuple[
                               "Please check Prompts file")
         raise PromptError(f"\nUNVALID PROMPT: {err['input']}")
 
+    print("\033[1;32m[OK] Input files parsed and validated.\033[0m")
     return (parser, validated_functions, validated_prompts)
 
 
