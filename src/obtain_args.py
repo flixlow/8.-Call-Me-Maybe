@@ -1,6 +1,6 @@
 from llm_sdk import Small_LLM_Model  # type: ignore
 from src.utils_class import Func
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, PrivateAttr
 import numpy as np
 from typing import Any
 
@@ -19,6 +19,18 @@ class ArgsFinder(BaseModel):
     llm: Small_LLM_Model
     function: Func
     prompt: str
+    _context_ids: list[int] = PrivateAttr()
+    _args_input: list[list[int]] = PrivateAttr()
+    _args_type: list[str] = PrivateAttr()
+    _numbers: list[int] = PrivateAttr()
+
+    def model_post_init(self, _: Any) -> None:
+        self._context_ids = self.get_context()
+        self._args_input = self.encode_args_list()
+        self._args_type = [arg.type.value
+                           for arg in self.function.parameters.values()]
+        self._numbers = [self.llm.encode(n).tolist()[0][0]
+                         for n in list('0123456789."')]
 
     def get_context(self) -> list[int]:
         """
@@ -78,6 +90,13 @@ class ArgsFinder(BaseModel):
                 pass
         return {key: str(value)}
 
+    def get_number(self, logits: list[float]) -> int:
+        constrained = {}
+        for n in self._numbers:
+            constrained.update({n: logits[n]})
+
+        return max(constrained, key=lambda x: constrained[x])
+
     def searching_args(self) -> dict[str, Any] | None:
         """
         Search and extract arguments from the user request using the LLM.
@@ -86,37 +105,38 @@ class ArgsFinder(BaseModel):
             dict: Dictionary of extracted arguments with their typed values.
         """
         written = []
-        context_ids = self.get_context()
         llm = self.llm
-        args_input = self.encode_args_list()
         quotes_id = llm.encode('"').tolist()[0][0]
         index_of_max_value = quotes_id
         ret: dict[str, Any] = {}
 
         for _ in range(35):
             if index_of_max_value == quotes_id:
-                if not args_input:
+                if not self._args_input or not self._args_type:
                     break
-                arg = args_input.pop(0)
-                context_ids.extend(arg)
+                arg = self._args_input.pop(0)
+                arg_type = self._args_type.pop(0)
+                self._context_ids.extend(arg)
                 written.extend(arg)
 
-            logits = llm.get_logits_from_input_ids(context_ids)
-            index_of_max_value = int(np.argmax(logits))
+            logits = llm.get_logits_from_input_ids(self._context_ids)
+            if arg_type in ["float", "integer", "number"]:
+                index_of_max_value = self.get_number(logits)
+            else:
+                index_of_max_value = int(np.argmax(logits))
 
             if '"' in llm.decode(index_of_max_value):
                 written.append(index_of_max_value)
                 ret.update(self.parse_args(
-                        llm.decode(written).replace("\"", "")
-                    ))
+                        llm.decode(written).replace("\"", "")))
                 index_of_max_value = quotes_id
-                if not args_input:
+                if not self._args_input:
                     return ret
                 else:
-                    context_ids.append(index_of_max_value)
+                    self._context_ids.append(index_of_max_value)
                     written = []
                     continue
 
             written.append(index_of_max_value)
-            context_ids.append(index_of_max_value)
+            self._context_ids.append(index_of_max_value)
         return None
