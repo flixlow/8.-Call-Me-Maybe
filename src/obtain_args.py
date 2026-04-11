@@ -1,5 +1,5 @@
 from llm_sdk import Small_LLM_Model  # type: ignore
-from src.utils_class import Func
+from src.utils_classes import Func
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 import numpy as np
 from typing import Any

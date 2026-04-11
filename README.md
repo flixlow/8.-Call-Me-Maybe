@@ -53,9 +53,12 @@ Describe how you validated your implementation
 ## Example usage
 Provide clear examples of running your program
 
-[15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 13, 1] = 
+[15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 13, 1]
 
 cd moulinette
+
+uv run python -m moulinette prepare_exercises --set private
+
 uv run python -m moulinette grade_student_answers --set private 
 
 uv run python3 -m src --functions_definition moulinette/data/input/functions_definition.json --input moulinette/data/input/function_calling_tests.json --output data/output/function_calls.json

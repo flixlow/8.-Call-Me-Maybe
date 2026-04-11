@@ -2,9 +2,9 @@ import json
 from typing import Any
 from pydantic import TypeAdapter, ValidationError
 from argparse import ArgumentParser, Namespace
-from src.utils_class import Prompt, Func
-from src.errors import FileOpeningError, ArgumentError
-from src.errors import FunctionError, PromptError
+from src.utils_classes import Prompt, Func
+from src.custom_errors import FileOpeningError, ArgumentError
+from src.custom_errors import FunctionError, PromptError
 
 
 def open_json_file_to_list(file_name: str) -> list[dict[str, Any]]:

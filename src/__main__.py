@@ -2,10 +2,8 @@ from llm_sdk import Small_LLM_Model  # type: ignore
 from src.parse_and_validate import parse_and_check_args_and_files
 from src.obtain_function_name import FunctionFinder
 from src.obtain_args import ArgsFinder
-from pathlib import Path
+from src.output import outputfile
 from typing import Any
-import json
-import os
 
 
 def main() -> None:
@@ -47,14 +45,7 @@ def main() -> None:
                   "parameters": args}
 
         results.append(result)
-
-    output = Path(parser.output)
-    try:
-        os.mkdir(output.parent)
-    except FileExistsError:
-        pass
-    with open(str(output), 'w') as f:
-        json.dump(results, f, indent=4)
+    outputfile(parser, results)
 
 
 if __name__ == '__main__':
