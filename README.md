@@ -65,7 +65,8 @@ uv run python3 -m src --functions_definition moulinette/data/input/functions_def
 
 uv run python -m moulinette grade_student_answers --set private --student_answer_path ../data/output/function_calls.json
 
-- Support for multiple LLM models beyond Qwen/Qwen3-0.6B
+- Support for multiple LLM models beyond Qwen/Qwen3-0.6B : charlottemeyer/s1.1-20250515_160200
 - Advanced error recovery mechanisms
 - Demonstration of how encoding and decoding integrate with constrained decoding
+- Vizualisation of the generation process
 - 

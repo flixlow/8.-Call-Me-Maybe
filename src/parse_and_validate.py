@@ -55,6 +55,8 @@ def parsing() -> Namespace:
     for flag, default_file in zip(flags, default_files):
         parser.add_argument(flag, default=default_file)
 
+    parser.add_argument("--interactive", action='store_true')
+
     return parser.parse_args()
 
 
@@ -103,7 +105,7 @@ def parse_and_check_args_and_files() -> tuple[
                               "Please check Prompts file")
         raise PromptError(f"\nUNVALID PROMPT: {err['input']}")
 
-    print("\033[1;32m[OK] Input files parsed and validated.\033[0m")
+    print("\n\033[1;32m[OK] Input files parsed and validated.\033[0m\n")
     return (parser, validated_functions, validated_prompts)
 
 

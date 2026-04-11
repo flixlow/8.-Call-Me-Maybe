@@ -3,21 +3,9 @@ from src.parse_and_validate import parse_and_check_args_and_files
 from src.obtain_function_name import FunctionFinder
 from src.obtain_args import ArgsFinder
 from src.output import outputfile
-from typing import Any, Generator
-
-
-def i_gen(total: int) -> Generator[int]:
-    for i in range(total):
-        yield i
-
-
-def print_progress_bar(progress: int, total: int, stage: str) -> None:
-    percent = 100 * (progress + 1) / total
-    bar = '█' * int(percent) + '-' * (100 - int(percent))
-    # if percent == 100:
-    #     print(f"\rProgress: 100.0% {' ' * 124}", flush=True)
-    #     return
-    print(f"\rProgress: |{bar}| {percent:.1f}% {stage}", end="", flush=True)
+from src.progress_bar import i_gen, print_progress_bar
+from src.utils_classes import Prompt
+from typing import Any
 
 
 def main() -> None:
@@ -31,18 +19,23 @@ def main() -> None:
         None
     """
     llm = Small_LLM_Model(model_name="Qwen/Qwen3-0.6B")
+    # llm = Small_LLM_Model(model_name="charlottemeyer/s1.1-20250515_160200")
 
     parser, functions, prompts = parse_and_check_args_and_files()
 
     results: list[dict[str, Any]] = []
+
     function_finder = FunctionFinder(llm=llm, functions=functions)
+
+    if parser.interactive is True:
+        prompts = [Prompt(prompt=input("Please enter your prompt:"))]
+
     operations = len(prompts) * 3 + 1
     gen = i_gen(operations)
 
-    for i, prompt in enumerate(prompts):
+    for prompt in prompts:
         print_progress_bar(next(gen), operations, f"{'Searching Function':21}")
         func = function_finder.searching_function(prompt.prompt)
-
         if not func:
             results.append({"prompt": prompt.prompt,
                             "name": "(function not found)",
@@ -51,9 +44,8 @@ def main() -> None:
 
         for function in functions:
             if function.name == func:
-                arguments_finder = ArgsFinder(
-                    llm=llm, function=function, prompt=prompt.prompt)
-
+                arguments_finder = ArgsFinder(llm=llm, function=function,
+                                              prompt=prompt.prompt)
         print_progress_bar(next(gen), operations, "Searching Argument(s)")
         args = arguments_finder.searching_args()
         if not args:
@@ -64,6 +56,7 @@ def main() -> None:
                   "name": arguments_finder.function.name,
                   "parameters": args}
         results.append(result)
+
     print_progress_bar(next(gen), operations, f"{'Finish':21}")
     outputfile(parser, results)
 
