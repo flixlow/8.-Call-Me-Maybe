@@ -10,9 +10,10 @@ import os
 
 def main() -> None:
     """
-    Main entry point for the script. Loads prompts and functions,
-    finds the best function for each prompt, extracts arguments,
-    and writes results to a file.
+    Main entry point for the script.
+
+    Loads prompts and functions, finds the best function for each prompt,
+    extracts arguments and writes results to a file.
 
     Returns:
         None
@@ -44,6 +45,7 @@ def main() -> None:
         result = {"prompt": prompt.prompt,
                   "name": arguments_finder.function.name,
                   "parameters": args}
+
         results.append(result)
 
     output = Path(parser.output)

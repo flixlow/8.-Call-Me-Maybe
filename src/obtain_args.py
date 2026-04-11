@@ -78,7 +78,7 @@ class ArgsFinder(BaseModel):
                 pass
         return {key: str(value)}
 
-    def searching_args(self) -> dict[str, Any]:
+    def searching_args(self) -> dict[str, Any] | None:
         """
         Search and extract arguments from the user request using the LLM.
 
@@ -100,8 +100,10 @@ class ArgsFinder(BaseModel):
                 arg = args_input.pop(0)
                 context_ids.extend(arg)
                 written.extend(arg)
+
             logits = llm.get_logits_from_input_ids(context_ids)
             index_of_max_value = int(np.argmax(logits))
+
             if '"' in llm.decode(index_of_max_value):
                 written.append(index_of_max_value)
                 ret.update(self.parse_args(
@@ -114,7 +116,7 @@ class ArgsFinder(BaseModel):
                     context_ids.append(index_of_max_value)
                     written = []
                     continue
+
             written.append(index_of_max_value)
             context_ids.append(index_of_max_value)
-        print("ERROR")
-        return ret
+        return None
