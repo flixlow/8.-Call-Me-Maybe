@@ -8,8 +8,7 @@ from src.custom_errors import FunctionError, PromptError
 
 
 def open_json_file_to_list(file_name: str) -> list[dict[str, Any]]:
-    """
-    Open a JSON file and return its content as a list.
+    """Open a JSON file and return its content as a list.
 
     Args:
         file_name (str): Path to the JSON file.
@@ -36,8 +35,7 @@ def open_json_file_to_list(file_name: str) -> list[dict[str, Any]]:
 
 
 def parsing() -> Namespace:
-    """
-    Parse command-line arguments for input/output files.
+    """Parse command-line arguments for input/output files.
 
     Returns:
         Namespace: Parsed arguments.
@@ -62,8 +60,7 @@ def parsing() -> Namespace:
 
 def parse_and_check_args_and_files() -> tuple[
         Namespace, list[Func], list[Prompt]]:
-    """
-    Parse arguments and validate input files to get functions and prompts.
+    """Parse arguments and validate input files to get functions and prompts.
 
     Returns:
         tuple: (parser, validated functions, validated prompts)

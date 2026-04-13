@@ -4,8 +4,7 @@ from src.utils_classes import Func
 
 
 class FunctionFinder(BaseModel):
-    """
-    Finds the most relevant function for a user request.
+    """Finds the most relevant function for a user request.
 
     Attributes:
         llm (Small_LLM_Model): Language model used for encoding and generation.
@@ -17,8 +16,7 @@ class FunctionFinder(BaseModel):
     functions: list[Func]
 
     def get_context(self, prompt: str) -> list[int]:
-        """
-        Build the encoding context for function selection.
+        """Build the encoding context for function selection.
 
         Args:
             prompt (str): The user request.
@@ -37,8 +35,7 @@ class FunctionFinder(BaseModel):
         return context_ids
 
     def get_tab_ids_of_functions_name(self) -> list[list[int]]:
-        """
-        Encode all function names as lists of token IDs.
+        """Encode all function names as lists of token IDs.
 
         Returns:
             list[list[int]]: List of encoded token IDs for each function name.
@@ -50,8 +47,7 @@ class FunctionFinder(BaseModel):
 
     def get_available_tokens(self, tab: list[list[int]],
                              written: list[int]) -> set[int]:
-        """
-        Return available tokens for completing a function name.
+        """Return available tokens for completing a function name.
 
         Args:
             tab (list[list[int]]): List of encoded function name token IDs.
@@ -67,8 +63,7 @@ class FunctionFinder(BaseModel):
         return available_tokens
 
     def searching_function(self, prompt: str) -> str | None:
-        """
-        Search for the most relevant function for the user request.
+        """Search for the most relevant function for the user request.
 
         Args:
             prompt (str): The user request.

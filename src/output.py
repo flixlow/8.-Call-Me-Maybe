@@ -6,6 +6,12 @@ import os
 
 
 def outputfile(parser: Namespace, results: list[dict[str, Any]]) -> None:
+    """Write results to an output file in JSON format.
+
+    Args:
+        parser (Namespace): The argparse object containing the output path.
+        results (list[dict[str, Any]]): The results to write to the file.
+    """
     output = Path(parser.output)
     try:
         os.mkdir(output.parent)

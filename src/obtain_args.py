@@ -25,6 +25,11 @@ class ArgsFinder(BaseModel):
     _numbers: list[int] = PrivateAttr()
 
     def model_post_init(self, _: Any) -> None:
+        """Initialize private attributes after model creation.
+
+        Args:
+            _ (Any): Unused. Required by pydantic's model_post_init signature.
+        """
         self._context_ids = self.get_context()
         self._args_input = self.encode_args_list()
         self._args_type = [arg.type.value
@@ -33,8 +38,7 @@ class ArgsFinder(BaseModel):
                          for n in list('0123456789.-"')]
 
     def get_context(self) -> list[int]:
-        """
-        Build the encoding context for argument extraction.
+        """Build the encoding context for argument extraction.
 
         Returns:
             list[int]: Encoded context IDs for the LLM.
@@ -52,8 +56,7 @@ class ArgsFinder(BaseModel):
         return context_ids
 
     def encode_args_list(self) -> list[list[int]]:
-        """
-        Encode each function argument as a list of token IDs.
+        """Encode each function argument as a list of token IDs.
 
         Returns:
             list[list[int]]: List of encoded token IDs for each argument.
@@ -62,8 +65,7 @@ class ArgsFinder(BaseModel):
         return [self.llm.encode(arg).tolist()[0] for arg in args_line]
 
     def parse_args(self, arg: str) -> dict[str, Any]:
-        """
-        Parse an encoded argument string and convert it to the correct type.
+        """Parse an encoded argument string and convert it to the correct type.
 
         Args:
             arg (str): Argument as a string (e.g., 'x= 42').
@@ -91,6 +93,14 @@ class ArgsFinder(BaseModel):
         return {key: str(value)}
 
     def get_number(self, logits: list[float]) -> int:
+        """Get the token ID corresponding to the highest probability number.
+
+        Args:
+            logits (list[float]): Logits from the LLM for each token.
+
+        Returns:
+            int: Token ID of the most probable number.
+        """
         constrained = {}
         for n in self._numbers:
             constrained.update({n: logits[n]})
@@ -98,8 +108,7 @@ class ArgsFinder(BaseModel):
         return max(constrained, key=lambda x: constrained[x])
 
     def searching_args(self) -> dict[str, Any] | None:
-        """
-        Search and extract arguments from the user request using the LLM.
+        """Search and extract arguments from the user request using the LLM.
 
         Returns:
             dict: Dictionary of extracted arguments with their typed values.

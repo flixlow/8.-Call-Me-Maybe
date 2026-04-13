@@ -14,8 +14,7 @@ class ArgType(Enum):
 
 
 class Type(BaseModel):
-    """
-    Represents the type of a function argument.
+    """Represents the type of a function argument.
 
     Attributes:
         type (ArgType): The argument type.
@@ -24,8 +23,7 @@ class Type(BaseModel):
 
 
 class Func(BaseModel):
-    """
-    Represents a function to be called.
+    """Represents a function to be called.
 
     Attributes:
         name (str): Name of the function.
@@ -40,8 +38,7 @@ class Func(BaseModel):
 
 
 class Prompt(BaseModel):
-    """
-    Represents a user prompt.
+    """Represents a user prompt.
 
     Attributes:
         prompt (str): The user prompt text.
@@ -50,8 +47,7 @@ class Prompt(BaseModel):
 
     @field_validator('prompt', mode='after')
     def is_prompt_empty(cls, prompt: str) -> str:
-        """
-        Validate that the prompt is not empty or only whitespace.
+        """Validate that the prompt is not empty or only whitespace.
 
         Args:
             prompt (str): The user prompt text.
