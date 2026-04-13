@@ -30,7 +30,7 @@ class ArgsFinder(BaseModel):
         self._args_type = [arg.type.value
                            for arg in self.function.parameters.values()]
         self._numbers = [self.llm.encode(n).tolist()[0][0]
-                         for n in list('0123456789."')]
+                         for n in list('0123456789.-"')]
 
     def get_context(self) -> list[int]:
         """
@@ -58,8 +58,8 @@ class ArgsFinder(BaseModel):
         Returns:
             list[list[int]]: List of encoded token IDs for each argument.
         """
-        args_lign = [f'{k}= "' for k in self.function.parameters.keys()]
-        return [self.llm.encode(arg).tolist()[0] for arg in args_lign]
+        args_line = [f'{k}= "' for k in self.function.parameters.keys()]
+        return [self.llm.encode(arg).tolist()[0] for arg in args_line]
 
     def parse_args(self, arg: str) -> dict[str, Any]:
         """

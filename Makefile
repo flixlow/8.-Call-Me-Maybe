@@ -1,14 +1,15 @@
 UV_RUN = uv run python3 -m
+ARGS ?=
 
 install:
 	uv sync
 	@echo "\033[0;32m\n[OK] installation completed ✔\n\033[0m"
 
 run:
-	$(UV_RUN) src --functions_definition data/input/functions_definition.json --input data/input/function_calling_tests.json --output data/output/function_calling_results.json
+	$(UV_RUN) src $(ARGS)
 
 debug: install
-	$(UV_RUN)  pdb -m src --functions_definition data/input/functions_definition.json --input data/input/function_calling_tests.json --output data/output/function_calling_results.json
+	$(UV_RUN) pdb -m src
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +

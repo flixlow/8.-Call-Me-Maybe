@@ -19,7 +19,6 @@ def main() -> None:
         None
     """
     llm = Small_LLM_Model(model_name="Qwen/Qwen3-0.6B")
-    # llm = Small_LLM_Model(model_name="charlottemeyer/s1.1-20250515_160200")
 
     parser, functions, prompts = parse_and_check_args_and_files()
 

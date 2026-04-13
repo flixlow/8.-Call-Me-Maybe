@@ -192,7 +192,7 @@ Example result:
 ## Bonus
 
 - Progress bar to visualize generating process
-- 'interactive' mode pour prompt entry
+- 'interactive' mode for prompt entry
 - Advanced error recovery system
-- Support multiple LLMs
-- Demonstration of how encoding and decoding work with constrained decoding
+- Support multiple LLMs : charlottemeyer/s1.1-20250515_160200
+- Encoding/decoding with constrained decoding
