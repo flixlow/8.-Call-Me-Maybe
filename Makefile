@@ -17,7 +17,7 @@ clean:
 	rm -rf .venv
 
 lint:
-	flake8 src && mypy src --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+	$(UV_RUN) flake8 src && $(UV_RUN) mypy src --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
 lint-strict:
 	$(UV_RUN) flake8 src && $(UV_RUN) mypy src --strict

@@ -188,3 +188,11 @@ Example result:
     }
 }
 ```
+
+## Bonus
+
+- Progress bar to visualize generating process
+- 'interactive' mode pour prompt entry
+- Advanced error recovery system
+- Support multiple LLMs
+- Demonstration of how encoding and decoding work with constrained decoding
