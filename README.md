@@ -4,80 +4,187 @@
 
 ## Description
 
-Ce projet permet de comprendre le fonctionnement des llms, depuis le prompt en text, en passant par les tokens, ids
-le but est d'integrer le constrained decoding sur un petit modeles avec 500m de parametres Qwen3 developpe par alibaba.
+Key concepts covered in this project include the understanding of LLMs (Large Language Models), tokenization, vectorization, argument schema validation, and the text generation process.
+
+The project focuses on constrained decoding, a technique that restricts the model’s output to only valid function names and argument types at each step. This ensures that generated outputs are always structured and machine-executable.
+
+The main goal is to reliably extract arguments from user requests that match a predefined schema, providing both robustness and reliability for function calling with LLMs.
 
 ## Instructions
 
+### Installation
+Install all dependencies:
+```sh
+make install
+```
+
+### Running the Project
+Run the main program with default input and output files:
+```sh
+make run
+```
+
+### Debug Mode
+Run with the Python debugger:
+```sh
+make debug
+```
+
+### Linting & Type Checking
+Check code style and types:
+```sh
+make lint
+```
+Strict linting and type checking:
+```sh
+make lint-strict
+```
+
+### Cleaning
+Remove cache, .venv and output files:
+```sh
+make clean
+```
+
+### Custom Input/Output Paths
+To use custom input or output files:
+```sh
+uv run python -m src [--functions_definition <function_definition_file>] [--input <input_file>] [--output <output_file>]
+```
+
 ## Resources
-### AI Claude
-- uv details
-- constrained decoding
-- https://airbyte.com/data-engineering-resources/tokenization-vs-embeddings
-- llm dimensions and coordonates
-- BPE: découper le texte en morceaux intelligents (subwords)
-- SentencePiece: bibliothèque de tokenization développée par Google.
-- https://www.youtube.com/watch?v=4Bdc55j80l8
-- https://docs.python.org/3/library/argparse.html
-- https://docs.pydantic.dev/latest/
-- https://stackoverflow.com/
-- https://www.geeksforgeeks.org
-- numpy.argmax()
-- difference between tensors, ids and tokens
-- https://www.aidancooper.co.uk/constrained-decoding/#what-is-constrained-decoding-and-how-does-it-work
-- https://medium.com/@rosgluk/constraining-llms-with-structured-output-ollama-qwen3-python-or-go-2f56ff41d720
-- https://www.youtube.com/watch?v=oJLaA7-i3nI Progress bar
+
+### Documentation & Tutorials
+- [Tokenization vs Embeddings (Airbyte)](https://airbyte.com/data-engineering-resources/tokenization-vs-embeddings)
+- [What is constrained decoding? (Aidan Cooper)](https://www.aidancooper.co.uk/constrained-decoding/#what-is-constrained-decoding-and-how-does-it-work)
+- [Constraining LLMs with structured output (Medium)](https://medium.com/@rosgluk/constraining-llms-with-structured-output-ollama-qwen3-python-or-go-2f56ff41d720)
+- [YouTube: Progress bar](https://www.youtube.com/watch?v=oJLaA7-i3nI)
+- [YouTube: Tokenization and LLMs](https://www.youtube.com/watch?v=4Bdc55j80l8)
+- [Python argparse documentation](https://docs.python.org/3/library/argparse.html)
+- [Pydantic documentation](https://docs.pydantic.dev/latest/)
+- [Stack Overflow](https://stackoverflow.com/)
+- [GeeksforGeeks](https://www.geeksforgeeks.org)
+
+### Key Concepts & Definitions
+- **uv**: Python package/dependency manager.
+- **Embedding dimension**: Size of the vector representing a token in the model.
+- **Model parameters**: Numeric values (weights) learned during training, stored in matrices.
+- **Qwen3-0.6B**: LLM with 0.6 billion parameters.
+- **Logits**: Raw model scores before applying softmax to get probabilities.
+- **BPE (Byte Pair Encoding)**: Subword tokenization algorithm.
+- **SentencePiece**: Google library for unsupervised text tokenization.
+- **numpy.argmax()**: Returns the index of the max value in a NumPy array.
+- **Regex**: Pattern for searching or validating text.
+- **ASCII/Unicode/UTF-8**: Character encodings.
+- **Tensors, ids, tokens**: Tensors are multi-dimensional arrays; ids are token indices; tokens are text units.
+- **Attention**: Mechanism in LLMs to focus on relevant input parts.
+- **Temperature**: Controls randomness in model output.
+
+### AI Used in This Project
+- Improved error messages
+- README and docstring assistance
 
 
 ## Algorithm explanation
-tout d'abord, j'ai mis en place le constrained decoding sur les noms de fonctions dans functionfinders.
-je tokenise tous les noms de fonctions et j'en fait un tableau de tableau d'id de tokens
-apres avec tokenise et mis sous forme de tableau d'ids le context, j'utilse la fonction get_logits_from_next_ids()
-cela me donne un tableau de probalite dont les id des tokens sont representes au travers des index de ce tableau 
-je vais ensuite recupere les tokens suivant qui peuvent etre coherent avec ce que j ai deja commencé a écrire puis je renvoie les id possibles
-et je compare les probabilites de ces ids et je note celle qui a la plus grande probabilité dans written.
-lorsque je trouve un nom de fonction complet dans written, je retourne ce nom de fonction
-pour ce qui est des arguments je fais selon le type de l'argument, si celui ci est un nombre, inter ou float, j'utilise
-seulement les tokens de cette liste '0123456789".'.
-pour les arguments d'autres types, je prends le token dont le logit est la plus elevée
+
+The algorithm applies constrained decoding in two main steps: function name selection and argument extraction.
+
+1. All possible function names are tokenized and stored as lists of token IDs.
+2. The context is also tokenized into token IDs.
+3. For each decoding step, the model computes logits (probabilities) for the next possible tokens using get_logits_from_next_ids().
+4. Only tokens that can continue a valid function name are considered. The token with the highest probability is added to the output.
+5. When a complete function name is found, it is returned.
+6. For argument extraction, the context is encoded one argument at a time using the format: "{argument_name}"=". When a double quote is found in the generated output, the next argument is added to the context and the process repeats for each argument in sequence. It returns when there is no more argument.
+7. For arguments:
+	- If the argument is a number (int or float), only numeric tokens ('0123456789".') are allowed.
+	- For other types, the token with the highest logit is selected.
+
+This process ensures that only valid function names and argument types are generated, following the predefined schema.
+
+#### context for function name selection
+
+```
+Choose the most relevant function for the request.
+list of function name: fn_add_number|fn_greet|...|fn_substitute_string_with_regex
+Request: {prompt}
+Answer a function name:
+```
+
+#### context for arguments extraction
+
+```
+Extract intact argument from request
+Function name=fn_add_numbers
+Request=What is the sum of 2 and 3?
+Argument=
+argument_name=a type=number
+argument_name=b type=number
+```
+
+then add:
+```
+"a"= "
+```
+
+waiting for double quotes, then add:
+```
+"b"= "
+```
 
 ## Design decisions
-j'ai décidé de faire classe basemodel distinct pour la recherche des functions et des arguments.
+Input arguments are validated using the argparse module.
+The codebase is modular and object-oriented, using Pydantic's BaseModel for robust data validation and clear structure. Function and argument extraction are handled by separate classes (`FunctionFinder` and `ArgsFinder`), making the logic easy to extend and maintain. Custom error classes provide clear feedback for file, argument, and validation issues. Utility modules (e.g., for progress bars and prompt validation) keep the main logic clean and focused.
 
 
 ## Performance analysis
-Discuss accuracy, speed, and reliability of your solution
+The solution is accurate for well-formed prompts and function definitions, as it uses constrained decoding and schema validation to minimize errors. Speed is suitable for small to medium datasets, with progress bars for user feedback. Reliability is enhanced by robust error handling and clear separation of concerns, but performance may depend on the underlying LLM and input size.
+
+For function name search, the algorithm is optimized to minimize the number of encode/decode operations, improving efficiency. For argument extraction, this optimization is not possible because the double quote token (used to delimit arguments) can appear in many different token forms, requiring more flexible decoding.
 
 ## Challenges faced
-Document difficulties encountered and how you solved them
-how to stop the prompt and implement the constrained decoding method ?
-try:
-- prompt argument only ?
-- restraining with arg type set
-- decoding to read if ther is a final double quotes
-- constrained decoding on specified type
-- 
+Key challenges included:
+- Designing a decoding loop that stops at the right moment for both function names and arguments.
+- Restricting generation to valid argument types (e.g., only digits for numbers).
+
+Solutions:
+- Used argument-by-argument context encoding and checked for closing quotes to delimit arguments.
+- Implemented type-based token restrictions and fallback logic for missing arguments.
+- Added custom error classes for clear user feedback.
 
 ## Testing strategy
-Describe how you validated your implementation
+Testing began with interactive input mode to understand token generation, using a simple encode/decode and print loop. Once prompt and function parsing were implemented, the system was tested with the prompts provided in the subject. Additional validation was performed using manual prompt testing to ensure correctness and robustness.
 
 ## Example usage
-Provide clear examples of running your program
+Example input prompt in JSON:
+```json
+{
+    "prompt": "Replace all vowels in 'Programming is fun' with asterisks"
+}
+```
 
-[15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 13, 1]
+Example function definition:
+```json
+{
+    "name": "fn_substitute_string_with_regex",
+    "description": "Replace all occurrences matching a regex pattern in a string.",
+    "parameters": {
+      "source_string": { "type": "string" },
+      "regex": { "type": "string" },
+      "replacement": { "type": "string" }
+    },
+    "returns": { "type": "string" }
+}
+```
 
-cd moulinette
-
-uv run python -m moulinette prepare_exercises --set private
-
-uv run python -m moulinette grade_student_answers --set private 
-
-uv run python3 -m src --functions_definition moulinette/data/input/functions_definition.json --input moulinette/data/input/function_calling_tests.json --output data/output/function_calls.json
-
-uv run python -m moulinette grade_student_answers --set private --student_answer_path ../data/output/function_calls.json
-
-- Support for multiple LLM models beyond Qwen/Qwen3-0.6B : charlottemeyer/s1.1-20250515_160200
-- Advanced error recovery mechanisms
-- Demonstration of how encoding and decoding integrate with constrained decoding
-- Vizualisation of the generation process
-- interactive prompt processing
+Example result:
+```json
+{
+    "prompt": "Replace all vowels in 'Programming is fun' with asterisks",
+    "name": "fn_substitute_string_with_regex",
+    "parameters": {
+        "source_string": "Programming is fun",
+        "regex": "([aeiouAEIOU])",
+        "replacement": "*"
+    }
+}
+```
