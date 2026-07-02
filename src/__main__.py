@@ -6,6 +6,7 @@ from src.output import outputfile
 from src.progress_bar import i_gen, print_progress_bar
 from src.utils_classes import Prompt
 from typing import Any
+import time
 
 
 def main() -> None:
@@ -19,7 +20,7 @@ def main() -> None:
         None
     """
     llm = Small_LLM_Model(model_name="Qwen/Qwen3-0.6B")
-
+    t = time.time()
     parser, functions, prompts = parse_and_check_args_and_files()
 
     results: list[dict[str, Any]] = []
@@ -58,6 +59,7 @@ def main() -> None:
 
     print_progress_bar(next(gen), operations, f"{'Finish':21}")
     outputfile(parser, results)
+    print(time.time() - t)
 
 
 if __name__ == '__main__':
